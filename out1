@@ -1,0 +1,12 @@
+ls IntXFace.xcodeproj/project.pbxproj
+ls IntXFace.xcodeproj/project.xcworkspace/contents.xcworkspacedata
+ls IntXFace.xcodeproj/project.xcworkspace/xcshareddata/IDEWorkspaceChecks.plist
+ls IntXFace.xcodeproj/xcuserdata/pcoelho.xcuserdatad/xcdebugger/Breakpoints_v2.xcbkptlist
+ls IntXFace.xcodeproj/xcuserdata/pcoelho.xcuserdatad/xcschemes/xcschememanagement.plist
+ls IntXFace/Assets.xcassets/AccentColor.colorset/Contents.json
+ls IntXFace/Assets.xcassets/AppIcon.appiconset/Contents.json
+ls IntXFace/Assets.xcassets/Contents.json
+ls IntXFace/ContentView.swift
+ls IntXFace/IntXFace.entitlements
+ls IntXFace/IntXFaceApp.swift
+ls 'IntXFace/Preview Content/Preview Assets.xcassets/Contents.json'

@@ -75,7 +75,7 @@ struct TextView: NSViewRepresentable {
 
 struct ContentView: View {
     @StateObject var keyboard = Keyboard()
-    @ObservedObject var queue = Queue(3)
+    @StateObject var queue = Queue(3)
     let thickness : CGFloat = 10
     func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ count: Int, _ start: Int) -> [CGFloat] {
         var vector = given
