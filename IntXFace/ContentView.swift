@@ -24,17 +24,18 @@ class Keyboard: ObservableObject {
 }
 
 class Queue: ObservableObject {
-    @Published var float: CGFloat = 0
-    var floats: [CGFloat] = []
-    init(_ float: CGFloat) {
-        self.float = float
+    @Published var vector: [CGFloat] = []
+    var vectors: [[CGFloat]] = []
+    init(_ count: Int) {
+        let float: CGFloat = 1.0/CGFloat(count)
+        for _ in 0..<count {self.vector.append(float)}
         NSEvent.addLocalMonitorForEvents(matching:NSEvent.EventTypeMask.applicationDefined, handler: {(event: NSEvent) in
-            if (self.floats.isEmpty) {return event}
-            self.float = self.floats.first!
-            self.floats.removeFirst()
+            if (self.vectors.isEmpty) {return event}
+            self.vector = self.vectors.first!
+            self.vectors.removeFirst()
             return event})
     }
-    func push(_ float: CGFloat) {
+    func push(_ float: [CGFloat]) {
         NSApp.postEvent(
             NSEvent.otherEvent(
                 with:.applicationDefined,
@@ -47,7 +48,7 @@ class Queue: ObservableObject {
                 data1:Int(0),
                 data2:Int(0))!,
             atStart:false)
-        floats.append(float)
+        vectors.append(float)
     }
 }
 
@@ -74,28 +75,56 @@ struct TextView: NSViewRepresentable {
 
 struct ContentView: View {
     @StateObject var keyboard = Keyboard()
-    @ObservedObject var queue = Queue(0.5)
+    @ObservedObject var queue = Queue(3)
     let thickness : CGFloat = 10
-    func ratioHeight(_ height: CGFloat, _ delta: CGFloat) -> CGFloat {
-        var value = queue.float*height-delta
-        if (value < 0) {value = 0}
-        if (value > height-thickness) {value = height-thickness}
-        return value/height
-    }
-    func validHeight(_ height: CGFloat, _ count: Int) -> CGFloat {
-        var value = height - CGFloat(count)*height*queue.float - CGFloat(count)*thickness
-        if (value < 0) {value = 0}
-        return value
+    func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ count: Int, _ start: Int) -> [CGFloat] {
+        var vector = given
+        var from = start
+        var move = start
+        var todo = delta
+        for i in 0..<count {vector[i] = vector[i]*height}
+        // if delta is positive/negative, move from region above/below to the region below/above the start
+        if (delta > 0) {from = from + 1}
+        else {todo = -delta; move = move + 1}
+        while (todo > 0) {
+            // if all removed, use the next above/below to move from
+            if (vector[from] == 0) {if (delta > 0) {from = from + 1} else {from = from - 1}}
+            // if no more above/below, return early
+            if (from < 0 || from >= count) {break}
+            // move minimum of todo or vector[from]
+            if (todo > vector[from]) {
+                vector[move] = vector[move] + vector[from]; todo = todo - vector[from]; vector[from] = 0
+            } else {
+                vector[move] = vector[move] + todo; vector[from] = vector[from] - todo; todo = 0
+            }
+        }
+        for i in 0..<count {vector[i] = vector[i]/height}
+        return vector
     }
     var body: some View {
         GeometryReader{geo in VStack(spacing: 0) {
-            TextView(keyboard: keyboard)/*Color.blue*/
-                .frame(height:validHeight(geo.size.height,1))
+            TextView(keyboard: keyboard)/*Color.blue*/.frame(height: {() -> CGFloat in
+                let ratio = queue.vector[2]
+                let height = geo.size.height-2.0*thickness
+                return ratio*height}())
+            Color.yellow.frame(height: thickness)
+                .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
+                let height = geo.size.height-2.0*thickness
+                let delta = -val.translation.height
+                queue.push(ratioHeight(queue.vector,height,delta,3,1))})
+            TextView(keyboard: keyboard)/*Color.blue*/.frame(height: {() -> CGFloat in
+                let ratio = queue.vector[1]
+                let height = geo.size.height-2.0*thickness
+                return ratio*height}())
             Color.orange.frame(height: thickness)
-                .gesture(DragGesture(coordinateSpace:.local).onChanged{val in queue
-                .push(ratioHeight(geo.size.height,val.translation.height))})
-            TextView(keyboard: keyboard)/*Color.blue*/
-                .frame(height:validHeight(geo.size.height,0))
+                .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
+                let height = geo.size.height-2.0*thickness
+                let delta = -val.translation.height
+                queue.push(ratioHeight(queue.vector,height,delta,3,0))})
+            TextView(keyboard: keyboard)/*Color.blue*/.frame(height: {() -> CGFloat in
+                let ratio = queue.vector[0]
+                let height = geo.size.height-2.0*thickness
+                return ratio*height}())
         }}
     }
 }
