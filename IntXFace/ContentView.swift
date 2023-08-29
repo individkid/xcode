@@ -7,18 +7,26 @@
 
 import SwiftUI
 
-class Keyboard: ObservableObject {
-    @Published var string: String = "hello"
+class Heap: ObservableObject {
+    @Published var filter: String = "filter"
+    @Published var input: String = "input"
+    @Published var output: String = "output"
     var count = 0
     init() {
         NSEvent.addLocalMonitorForEvents(matching:NSEvent.EventTypeMask.keyDown, handler: {(event: NSEvent) in
             if (self.count == 0) {
-                self.string = "ok"
+                self.output = "hello"
                 self.count = 1
+            } else if (self.count == 1) {
+                self.output = "ok"
+                self.count = 2
+            } else if (self.count == 2){
+                self.output = "again"
+                self.count = 3
             } else {
-                self.string = "again"
+                self.output = "and"
+                self.count = 2
             }
-            print("keyPressed \(event.characters!)")
             return event})
     }
 }
@@ -26,16 +34,23 @@ class Keyboard: ObservableObject {
 class Queue: ObservableObject {
     @Published var vector: [CGFloat] = []
     var vectors: [[CGFloat]] = []
+    var closures: [()->Void] = []
     init(_ count: Int) {
         let float: CGFloat = 1.0/CGFloat(count)
         for _ in 0..<count {self.vector.append(float)}
-        NSEvent.addLocalMonitorForEvents(matching:NSEvent.EventTypeMask.applicationDefined, handler: {(event: NSEvent) in
-            if (self.vectors.isEmpty) {return event}
-            self.vector = self.vectors.first!
-            self.vectors.removeFirst()
-            return event})
+        NSEvent.addLocalMonitorForEvents(matching:NSEvent.EventTypeMask.applicationDefined,
+        handler: {(event: NSEvent) in self.closures.first!(); self.closures.removeFirst(); return event})
     }
-    func push(_ float: [CGFloat]) {
+    func apply() {
+        if (vectors.isEmpty) {return}
+        vector = vectors.first!
+        vectors.removeFirst()
+    }
+    func push(_ vector: [CGFloat]) {
+        vectors.append(vector)
+        push(apply)
+    }
+    func push(_ closure: @escaping () -> Void) {
         NSApp.postEvent(
             NSEvent.otherEvent(
                 with:.applicationDefined,
@@ -48,34 +63,15 @@ class Queue: ObservableObject {
                 data1:Int(0),
                 data2:Int(0))!,
             atStart:false)
-        vectors.append(float)
-    }
-}
-
-struct TextView: NSViewRepresentable {
-    @ObservedObject var keyboard: Keyboard
-    func makeNSView(context: Context) -> NSView {
-        let view = NSTextView.scrollableTextView()
-        guard let text = view.documentView as? NSTextView else {return NSView()}
-        let font = NSFont.userFont(ofSize:36.0)
-        text.font = font
-        text.string = keyboard.string
-        text.backgroundColor = NSColor.white
-        text.textColor = NSColor.black
-        text.isEditable = false
-        text.isVerticallyResizable = false
-        text.isHorizontallyResizable = false
-        return text
-    }
-    func updateNSView(_ view: NSView, context: Context) {
-        guard let text = view as? NSTextView else {return}
-        text.string = keyboard.string
+        closures.append(closure)
     }
 }
 
 struct ContentView: View {
-    @StateObject var keyboard = Keyboard()
-    @StateObject var queue = Queue(3)
+    @ObservedObject var heap: Heap
+    @StateObject var queue = Queue(4)
+    @State var scratch: String = "scatch"
+    let dividers : CGFloat = 3
     let thickness : CGFloat = 10
     func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ count: Int, _ start: Int) -> [CGFloat] {
         var vector = given
@@ -103,27 +99,40 @@ struct ContentView: View {
     }
     var body: some View {
         GeometryReader{geo in VStack(spacing: 0) {
-            TextView(keyboard: keyboard)/*Color.blue*/.frame(height: {() -> CGFloat in
+            TextEditor(text: $scratch)
+                .frame(height: {() -> CGFloat in
+                let ratio = queue.vector[3]
+                let height = geo.size.height-dividers*thickness
+                return ratio*height}())
+            Color.green.frame(height: thickness)
+                .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
+                let height = geo.size.height-dividers*thickness
+                let delta = -val.translation.height
+                queue.push(ratioHeight(queue.vector,height,delta,4,2))})
+            TextEditor(text: .constant(heap.filter))
+                .frame(height: {() -> CGFloat in
                 let ratio = queue.vector[2]
-                let height = geo.size.height-2.0*thickness
+                let height = geo.size.height-dividers*thickness
                 return ratio*height}())
             Color.yellow.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                let height = geo.size.height-2.0*thickness
+                let height = geo.size.height-dividers*thickness
                 let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,3,1))})
-            TextView(keyboard: keyboard)/*Color.blue*/.frame(height: {() -> CGFloat in
+                queue.push(ratioHeight(queue.vector,height,delta,4,1))})
+            TextEditor(text: .constant(heap.input))
+                .frame(height: {() -> CGFloat in
                 let ratio = queue.vector[1]
-                let height = geo.size.height-2.0*thickness
+                let height = geo.size.height-dividers*thickness
                 return ratio*height}())
             Color.orange.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                let height = geo.size.height-2.0*thickness
+                let height = geo.size.height-dividers*thickness
                 let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,3,0))})
-            TextView(keyboard: keyboard)/*Color.blue*/.frame(height: {() -> CGFloat in
+                queue.push(ratioHeight(queue.vector,height,delta,4,0))})
+            TextEditor(text: .constant(heap.output))
+                .frame(height: {() -> CGFloat in
                 let ratio = queue.vector[0]
-                let height = geo.size.height-2.0*thickness
+                let height = geo.size.height-dividers*thickness
                 return ratio*height}())
         }}
     }
