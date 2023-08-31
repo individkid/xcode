@@ -74,15 +74,16 @@ struct ContentView: View {
     @State private var filter: String = "filter"
     @State private var input: String = "input"
     @State private var output: String = "output"
+    @State private var error: String = "error"
     @State private var mode: String = "Manual"
-    @StateObject var queue = Queue(4)
-    let dividers : CGFloat = 3
+    @StateObject var queue = Queue(5)
+    let dividers : CGFloat = 4
     let thickness : CGFloat = 10
     var body: some View {
         GeometryReader{geo in VStack(spacing: 0) {
             TextEditor(text: $scratch)
                 .frame(height: {() -> CGFloat in
-                let ratio = queue.vector[3]
+                let ratio = queue.vector[4]
                 let height = geo.size.height-dividers*thickness
                 return ratio*height}())
                 .onChange(of: scratch) {value in
@@ -91,28 +92,38 @@ struct ContentView: View {
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
                 let height = geo.size.height-dividers*thickness
                 let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,4,2))})
+                queue.push(ratioHeight(queue.vector,height,delta,5,3))})
             TextEditor(text: .constant(filter))
                 .frame(height: {() -> CGFloat in
-                let ratio = queue.vector[2]
+                let ratio = queue.vector[3]
                 let height = geo.size.height-dividers*thickness
                 return ratio*height}())
             Color.yellow.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
                 let height = geo.size.height-dividers*thickness
                 let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,4,1))})
+                queue.push(ratioHeight(queue.vector,height,delta,5,2))})
             TextEditor(text: .constant(input))
                 .frame(height: {() -> CGFloat in
-                let ratio = queue.vector[1]
+                let ratio = queue.vector[2]
                 let height = geo.size.height-dividers*thickness
                 return ratio*height}())
             Color.orange.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
                 let height = geo.size.height-dividers*thickness
                 let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,4,0))})
+                queue.push(ratioHeight(queue.vector,height,delta,5,1))})
             TextEditor(text: .constant(output))
+                .frame(height: {() -> CGFloat in
+                let ratio = queue.vector[1]
+                let height = geo.size.height-dividers*thickness
+                return ratio*height}())
+            Color.red.frame(height: thickness)
+                .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
+                let height = geo.size.height-dividers*thickness
+                let delta = -val.translation.height
+                queue.push(ratioHeight(queue.vector,height,delta,5,0))})
+            TextEditor(text: .constant(error))
                 .frame(height: {() -> CGFloat in
                 let ratio = queue.vector[0]
                 let height = geo.size.height-dividers*thickness
@@ -123,10 +134,10 @@ struct ContentView: View {
                 else if (mode == "Character") {mode = "Line"}
                 else {mode = "Manual"}
             }
-            Button("Append to Filter") {
+            Button("Filter") {
                 filter = NSPasteboard.general.string(forType: .string) ?? ""}
                 .keyboardShortcut("F")
-            Button("Append to Input") {
+            Button("Input") {
                 input = NSPasteboard.general.string(forType: .string) ?? ""}
                 .keyboardShortcut("I")
        }
