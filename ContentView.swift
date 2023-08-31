@@ -84,7 +84,7 @@ struct ContentView: View {
         VStack(spacing: 0) {
             TextEditor(text: $scratch)
                 .frame(height: {queue.vector[4]*height}())
-                .onChange(of: scratch) {value in print("view: \(viewId) text: \(value)")}
+                .onChange(of: scratch) {val in print("view: \(viewId) text: \(val)")}
             Color.green.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
                 queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,3))})
