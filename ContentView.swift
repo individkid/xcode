@@ -87,22 +87,22 @@ struct ContentView: View {
                 .onChange(of: scratch) {value in print("view: \(viewId) text: \(value)")}
             Color.green.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,3))})
+                    queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,3))})
             TextEditor(text: .constant(filter))
                 .frame(height: {queue.vector[3]*height}())
             Color.yellow.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,2))})
+                    queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,2))})
             TextEditor(text: .constant(input))
                 .frame(height: {queue.vector[2]*height}())
             Color.orange.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,1))})
+                    queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,1))})
             TextEditor(text: .constant(output))
                 .frame(height: {queue.vector[1]*height}())
             Color.red.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,0))})
+                    queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,0))})
             TextEditor(text: .constant(error))
                 .frame(height: {queue.vector[0]*height}())
         }} .toolbar {
