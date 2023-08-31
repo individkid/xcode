@@ -77,63 +77,38 @@ struct ContentView: View {
     @State private var error: String = "error"
     @State private var mode: String = "Manual"
     @StateObject var queue = Queue(5)
-    let dividers : CGFloat = 4
+    let dividers : CGFloat = 40
     let thickness : CGFloat = 10
     var body: some View {
-        GeometryReader{geo in VStack(spacing: 0) {
+        GeometryReader{geo in let height = geo.size.height-dividers; VStack(spacing: 0) {
             TextEditor(text: $scratch)
-                .frame(height: {() -> CGFloat in
-                let ratio = queue.vector[4]
-                let height = geo.size.height-dividers*thickness
-                return ratio*height}())
-                .onChange(of: scratch) {value in
-                print("view: \(viewId) text: \(value)")}
+                .frame(height: {() -> CGFloat in queue.vector[4]*height}())
+                .onChange(of: scratch) {value in print("view: \(viewId) text: \(value)")}
             Color.green.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                let height = geo.size.height-dividers*thickness
-                let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,5,3))})
+                queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,3))})
             TextEditor(text: .constant(filter))
-                .frame(height: {() -> CGFloat in
-                let ratio = queue.vector[3]
-                let height = geo.size.height-dividers*thickness
-                return ratio*height}())
+                .frame(height: {() -> CGFloat in queue.vector[3]*height}())
             Color.yellow.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                let height = geo.size.height-dividers*thickness
-                let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,5,2))})
+                queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,2))})
             TextEditor(text: .constant(input))
-                .frame(height: {() -> CGFloat in
-                let ratio = queue.vector[2]
-                let height = geo.size.height-dividers*thickness
-                return ratio*height}())
+                .frame(height: {() -> CGFloat in queue.vector[2]*height}())
             Color.orange.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                let height = geo.size.height-dividers*thickness
-                let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,5,1))})
+                queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,1))})
             TextEditor(text: .constant(output))
-                .frame(height: {() -> CGFloat in
-                let ratio = queue.vector[1]
-                let height = geo.size.height-dividers*thickness
-                return ratio*height}())
+                .frame(height: {() -> CGFloat in queue.vector[1]*height}())
             Color.red.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
-                let height = geo.size.height-dividers*thickness
-                let delta = -val.translation.height
-                queue.push(ratioHeight(queue.vector,height,delta,5,0))})
+                queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,0))})
             TextEditor(text: .constant(error))
-                .frame(height: {() -> CGFloat in
-                let ratio = queue.vector[0]
-                let height = geo.size.height-dividers*thickness
-                return ratio*height}())
+                .frame(height: {() -> CGFloat in queue.vector[0]*height}())
         }} .toolbar {
             Button(mode) {
                 if (mode == "Manual") {mode = "Character"}
                 else if (mode == "Character") {mode = "Line"}
-                else {mode = "Manual"}
-            }
+                else {mode = "Manual"}}
             Button("Filter") {
                 filter = NSPasteboard.general.string(forType: .string) ?? ""}
                 .keyboardShortcut("F")
