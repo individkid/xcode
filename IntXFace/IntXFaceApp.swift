@@ -7,25 +7,21 @@
 
 import SwiftUI
 
+var unique: Int = 0
+func get_name(_ viewId: Int) -> String {
+    return "IntXFace\(viewId)"
+}
+
 @main
 struct IntXFaceApp: App {
-    @StateObject var heap = Heap()
     var body: some Scene {
-        WindowGroup {
-            ContentView(heap: heap)
-        } .commands {
-            CommandGroup(after: CommandGroupPlacement.pasteboard) {
-                Button("Append to Filter") {
-                    heap.filter = clipboardContent()
-                } .keyboardShortcut("F")
-                Button("Append to Input") {
-                    heap.input = clipboardContent()
-                } .keyboardShortcut("I")
-            }
+        WindowGroup(for: Int.self) {$viewId in
+            ContentView(viewId: $viewId)
+            .navigationTitle(get_name(viewId))
+        } defaultValue: {
+            let temp = unique
+            unique = unique + 1
+            return temp
         }
-    }
-    func clipboardContent() -> String
-    {
-        return NSPasteboard.general.string(forType: .string) ?? ""
     }
 }

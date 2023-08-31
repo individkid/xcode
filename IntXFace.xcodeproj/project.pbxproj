@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		487A7D7C2A9E727C0041D110 /* SystemCall.c in Sources */ = {isa = PBXBuildFile; fileRef = 487A7D7B2A9E727C0041D110 /* SystemCall.c */; };
 		48F5D18B2A9A525D0069C320 /* IntXFaceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F5D18A2A9A525D0069C320 /* IntXFaceApp.swift */; };
 		48F5D18D2A9A525D0069C320 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F5D18C2A9A525D0069C320 /* ContentView.swift */; };
 		48F5D18F2A9A525D0069C320 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 48F5D18E2A9A525D0069C320 /* Assets.xcassets */; };
@@ -14,6 +15,9 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		487A7D762A9E71F80041D110 /* IntXFace-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "IntXFace-Bridging-Header.h"; sourceTree = "<group>"; };
+		487A7D7A2A9E727C0041D110 /* SystemCall.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = SystemCall.h; sourceTree = SOURCE_ROOT; };
+		487A7D7B2A9E727C0041D110 /* SystemCall.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = SystemCall.c; sourceTree = SOURCE_ROOT; };
 		48F5D1872A9A525D0069C320 /* IntXFace.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = IntXFace.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		48F5D18A2A9A525D0069C320 /* IntXFaceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntXFaceApp.swift; sourceTree = "<group>"; };
 		48F5D18C2A9A525D0069C320 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -38,6 +42,7 @@
 			children = (
 				48F5D1892A9A525D0069C320 /* IntXFace */,
 				48F5D1882A9A525D0069C320 /* Products */,
+				487A7D762A9E71F80041D110 /* IntXFace-Bridging-Header.h */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,6 +62,8 @@
 				48F5D18E2A9A525D0069C320 /* Assets.xcassets */,
 				48F5D1932A9A525D0069C320 /* IntXFace.entitlements */,
 				48F5D1902A9A525D0069C320 /* Preview Content */,
+				487A7D7A2A9E727C0041D110 /* SystemCall.h */,
+				487A7D7B2A9E727C0041D110 /* SystemCall.c */,
 			);
 			path = IntXFace;
 			sourceTree = "<group>";
@@ -101,6 +108,7 @@
 				TargetAttributes = {
 					48F5D1862A9A525C0069C320 = {
 						CreatedOnToolsVersion = 14.3.1;
+						LastSwiftMigration = 1430;
 					};
 				};
 			};
@@ -141,6 +149,7 @@
 			files = (
 				48F5D18D2A9A525D0069C320 /* ContentView.swift in Sources */,
 				48F5D18B2A9A525D0069C320 /* IntXFaceApp.swift in Sources */,
+				487A7D7C2A9E727C0041D110 /* SystemCall.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -265,6 +274,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = IntXFace/IntXFace.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -283,6 +293,8 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.focal.IntXFace;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "IntXFace-Bridging-Header.h";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Debug;
@@ -292,6 +304,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = IntXFace/IntXFace.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -310,6 +323,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.example.focal.IntXFace;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_OBJC_BRIDGING_HEADER = "IntXFace-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 			};
 			name = Release;

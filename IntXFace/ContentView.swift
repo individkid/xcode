@@ -7,30 +7,6 @@
 
 import SwiftUI
 
-class Heap: ObservableObject {
-    @Published var filter: String = "filter"
-    @Published var input: String = "input"
-    @Published var output: String = "output"
-    var count = 0
-    init() {
-        NSEvent.addLocalMonitorForEvents(matching:NSEvent.EventTypeMask.keyDown, handler: {(event: NSEvent) in
-            if (self.count == 0) {
-                self.output = "hello"
-                self.count = 1
-            } else if (self.count == 1) {
-                self.output = "ok"
-                self.count = 2
-            } else if (self.count == 2){
-                self.output = "again"
-                self.count = 3
-            } else {
-                self.output = "and"
-                self.count = 2
-            }
-            return event})
-    }
-}
-
 class Queue: ObservableObject {
     @Published var vector: [CGFloat] = []
     var vectors: [[CGFloat]] = []
@@ -67,36 +43,41 @@ class Queue: ObservableObject {
     }
 }
 
+func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ count: Int, _ start: Int) -> [CGFloat] {
+    var vector = given
+    var from = start
+    var move = start
+    var todo = delta
+    for i in 0..<count {vector[i] = vector[i]*height}
+    // if delta is positive/negative, move from region above/below to the region below/above the start
+    if (delta > 0) {from = from + 1}
+    else {todo = -delta; move = move + 1}
+    while (todo > 0) {
+        // if all removed, use the next above/below to move from
+        if (vector[from] == 0) {if (delta > 0) {from = from + 1} else {from = from - 1}}
+        // if no more above/below, return early
+        if (from < 0 || from >= count) {break}
+        // move minimum of todo or vector[from]
+        if (todo > vector[from]) {
+            vector[move] = vector[move] + vector[from]; todo = todo - vector[from]; vector[from] = 0
+        } else {
+            vector[move] = vector[move] + todo; vector[from] = vector[from] - todo; todo = 0
+        }
+    }
+    for i in 0..<count {vector[i] = vector[i]/height}
+    return vector
+}
+
 struct ContentView: View {
-    @ObservedObject var heap: Heap
+    @Binding var viewId: Int
+    @State private var scratch: String = "scatch"
+    @State private var filter: String = "filter"
+    @State private var input: String = "input"
+    @State private var output: String = "output"
+    @State private var mode: String = "Manual"
     @StateObject var queue = Queue(4)
-    @State var scratch: String = "scatch"
     let dividers : CGFloat = 3
     let thickness : CGFloat = 10
-    func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ count: Int, _ start: Int) -> [CGFloat] {
-        var vector = given
-        var from = start
-        var move = start
-        var todo = delta
-        for i in 0..<count {vector[i] = vector[i]*height}
-        // if delta is positive/negative, move from region above/below to the region below/above the start
-        if (delta > 0) {from = from + 1}
-        else {todo = -delta; move = move + 1}
-        while (todo > 0) {
-            // if all removed, use the next above/below to move from
-            if (vector[from] == 0) {if (delta > 0) {from = from + 1} else {from = from - 1}}
-            // if no more above/below, return early
-            if (from < 0 || from >= count) {break}
-            // move minimum of todo or vector[from]
-            if (todo > vector[from]) {
-                vector[move] = vector[move] + vector[from]; todo = todo - vector[from]; vector[from] = 0
-            } else {
-                vector[move] = vector[move] + todo; vector[from] = vector[from] - todo; todo = 0
-            }
-        }
-        for i in 0..<count {vector[i] = vector[i]/height}
-        return vector
-    }
     var body: some View {
         GeometryReader{geo in VStack(spacing: 0) {
             TextEditor(text: $scratch)
@@ -104,12 +85,14 @@ struct ContentView: View {
                 let ratio = queue.vector[3]
                 let height = geo.size.height-dividers*thickness
                 return ratio*height}())
+                .onChange(of: scratch) {value in
+                print("view: \(viewId) text: \(value)")}
             Color.green.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged{val in
                 let height = geo.size.height-dividers*thickness
                 let delta = -val.translation.height
                 queue.push(ratioHeight(queue.vector,height,delta,4,2))})
-            TextEditor(text: .constant(heap.filter))
+            TextEditor(text: .constant(filter))
                 .frame(height: {() -> CGFloat in
                 let ratio = queue.vector[2]
                 let height = geo.size.height-dividers*thickness
@@ -119,7 +102,7 @@ struct ContentView: View {
                 let height = geo.size.height-dividers*thickness
                 let delta = -val.translation.height
                 queue.push(ratioHeight(queue.vector,height,delta,4,1))})
-            TextEditor(text: .constant(heap.input))
+            TextEditor(text: .constant(input))
                 .frame(height: {() -> CGFloat in
                 let ratio = queue.vector[1]
                 let height = geo.size.height-dividers*thickness
@@ -129,11 +112,24 @@ struct ContentView: View {
                 let height = geo.size.height-dividers*thickness
                 let delta = -val.translation.height
                 queue.push(ratioHeight(queue.vector,height,delta,4,0))})
-            TextEditor(text: .constant(heap.output))
+            TextEditor(text: .constant(output))
                 .frame(height: {() -> CGFloat in
                 let ratio = queue.vector[0]
                 let height = geo.size.height-dividers*thickness
                 return ratio*height}())
-        }}
+        }} .toolbar {
+            Button(mode) {
+                if (mode == "Manual") {mode = "Character"}
+                else if (mode == "Character") {mode = "Line"}
+                else {mode = "Manual"}
+            }
+            Button("Append to Filter") {
+                filter = NSPasteboard.general.string(forType: .string) ?? ""}
+                .keyboardShortcut("F")
+            Button("Append to Input") {
+                input = NSPasteboard.general.string(forType: .string) ?? ""}
+                .keyboardShortcut("I")
+       }
+
     }
 }
