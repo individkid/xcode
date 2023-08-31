@@ -8,16 +8,13 @@
 import SwiftUI
 
 var unique: Int = 0
-func get_name(_ viewId: Int) -> String {
-    return "IntXFace\(viewId)"
-}
 
 @main
 struct IntXFaceApp: App {
     var body: some Scene {
         WindowGroup(for: Int.self) {$viewId in
             ContentView(viewId: $viewId)
-            .navigationTitle(get_name(viewId))
+            .navigationTitle("IntXFace\(viewId)")
         } defaultValue: {
             let temp = unique
             unique = unique + 1

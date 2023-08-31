@@ -40,9 +40,13 @@
 		48F5D17E2A9A525C0069C320 = {
 			isa = PBXGroup;
 			children = (
+				48F5D18A2A9A525D0069C320 /* IntXFaceApp.swift */,
+				48F5D18C2A9A525D0069C320 /* ContentView.swift */,
+				487A7D7A2A9E727C0041D110 /* SystemCall.h */,
+				487A7D7B2A9E727C0041D110 /* SystemCall.c */,
+				487A7D762A9E71F80041D110 /* IntXFace-Bridging-Header.h */,
 				48F5D1892A9A525D0069C320 /* IntXFace */,
 				48F5D1882A9A525D0069C320 /* Products */,
-				487A7D762A9E71F80041D110 /* IntXFace-Bridging-Header.h */,
 			);
 			sourceTree = "<group>";
 		};
@@ -57,13 +61,9 @@
 		48F5D1892A9A525D0069C320 /* IntXFace */ = {
 			isa = PBXGroup;
 			children = (
-				48F5D18A2A9A525D0069C320 /* IntXFaceApp.swift */,
-				48F5D18C2A9A525D0069C320 /* ContentView.swift */,
 				48F5D18E2A9A525D0069C320 /* Assets.xcassets */,
 				48F5D1932A9A525D0069C320 /* IntXFace.entitlements */,
 				48F5D1902A9A525D0069C320 /* Preview Content */,
-				487A7D7A2A9E727C0041D110 /* SystemCall.h */,
-				487A7D7B2A9E727C0041D110 /* SystemCall.c */,
 			);
 			path = IntXFace;
 			sourceTree = "<group>";
