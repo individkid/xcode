@@ -6,8 +6,12 @@
 //
 
 #include "SystemCall.h"
+#include <stdio.h>
 
-void test(void)
+void open_filter(char **argv)
 {
-    printf("test\n");
+    for (int i = 0; argv[i]; i++) printf("open %s\n",argv[i]);
 }
+void write_char(int val);
+int read_char(void);
+void add_call(zftype call);

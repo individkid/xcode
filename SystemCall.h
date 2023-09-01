@@ -10,12 +10,10 @@
 
 #include <stdio.h>
 
-int open_filter(const char *argv[], int argc);
-void write_char(char val, int idx);
-char read_char(int idx);
-int wait_onset(void);
-void clear_set(void);
-void addto_set(int idx);
-void delfrom_set(int idx);
+void open_filter(char **argv);
+void write_char(int val);
+int read_char(void);
+typedef void (*zftype)(void);
+void add_call(zftype call);
 
 #endif /* SystemCall_h */

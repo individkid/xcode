@@ -68,6 +68,21 @@ func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ coun
     return vector
 }
 
+typealias Unsafe = Optional<UnsafeMutablePointer<Int8>>
+func openFilter(_ argv: [String]) {
+    let argc:[Int] = Swift.Array(0..<argv.count)
+    var ptr = UnsafeMutablePointer<Unsafe>.allocate(capacity:argv.count+1)
+    for (val,idx) in zip(argv,argc) {
+    let idc:[Int] = Swift.Array(0..<val.count)
+    ptr[idx] = UnsafeMutablePointer<Int8>.allocate(capacity:val.count+1)
+    for (v,i) in zip(val.utf8,idc) {ptr[idx]?[i] = Int8(v)}
+    ptr[idx]?[val.count] = Int8(0)}
+    ptr[argv.count] = nil
+    open_filter(ptr)
+    for idx in argc {ptr[idx]!.deallocate()}
+    ptr.deallocate()
+}
+
 struct ContentView: View {
     @Binding var viewId: Int
     @State private var scratch: String = "scatch"
@@ -84,7 +99,9 @@ struct ContentView: View {
         VStack(spacing: 0) {
             TextEditor(text: $scratch)
                 .frame(height: {queue.vector[4]*height}())
-                .onChange(of: scratch) {val in print("view: \(viewId) text: \(val)")}
+                .onChange(of: scratch) {val in
+                print("view: \(viewId) text: \(val)")
+                openFilter(["hello","ok","again"])}
             Color.green.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged() {val in
                 queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,3))})
