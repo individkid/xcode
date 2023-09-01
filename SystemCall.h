@@ -13,7 +13,7 @@
 void open_filter(char **argv);
 void write_char(int val);
 int read_char(void);
-typedef void (*zftype)(void);
-void add_call(zftype call);
+typedef void (*hgtype)(int);
+void add_call(hgtype call);
 
 #endif /* SystemCall_h */

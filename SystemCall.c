@@ -14,4 +14,4 @@ void open_filter(char **argv)
 }
 void write_char(int val);
 int read_char(void);
-void add_call(zftype call);
+void add_call(hgtype call);

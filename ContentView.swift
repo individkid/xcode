@@ -7,22 +7,29 @@
 
 import SwiftUI
 
-class Queue: ObservableObject {
-    @Published var vector: [CGFloat] = []
-    var vectors: [[CGFloat]] = []
+var queue: Int = 0
+class Queue<Type>: ObservableObject {
+    @Published var vector: Type
+    var vectors: [Type] = []
     var closures: [()->Void] = []
-    init(_ count: Int) {
-        let float: CGFloat = 1.0/CGFloat(count)
-        for _ in 0..<count {self.vector.append(float)}
+    var ident: Int
+    init(_ vector: Type) {
+        self.vector = vector
+        ident = queue
+        queue = queue + 1
         NSEvent.addLocalMonitorForEvents(matching:NSEvent.EventTypeMask.applicationDefined,
-        handler: {(event: NSEvent) in self.closures.first!(); self.closures.removeFirst(); return event})
+        handler: {(event: NSEvent) in
+        if (event.data1 == self.ident) {
+        self.closures.first!()
+        self.closures.removeFirst()}
+        return event})
     }
     func apply() {
         if (vectors.isEmpty) {return}
         vector = vectors.first!
         vectors.removeFirst()
     }
-    func push(_ vector: [CGFloat]) {
+    func push(_ vector: Type) {
         vectors.append(vector)
         push(apply)
     }
@@ -36,13 +43,19 @@ class Queue: ObservableObject {
                 windowNumber:0,
                 context:nil,
                 subtype:0,
-                data1:Int(0),
+                data1:Int(ident),
                 data2:Int(0))!,
             atStart:false)
         closures.append(closure)
     }
 }
 
+func getVector(_ count: Int) -> [CGFloat] {
+    var vector: [CGFloat] = []
+    let float: CGFloat = 1.0/CGFloat(count)
+    for _ in 0..<count {vector.append(float)}
+    return vector
+}
 func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ count: Int, _ start: Int) -> [CGFloat] {
     var vector = given
     var from = start
@@ -67,11 +80,10 @@ func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ coun
     for i in 0..<count {vector[i] = vector[i]/height}
     return vector
 }
-
 typealias Unsafe = Optional<UnsafeMutablePointer<Int8>>
 func openFilter(_ argv: [String]) {
     let argc:[Int] = Swift.Array(0..<argv.count)
-    var ptr = UnsafeMutablePointer<Unsafe>.allocate(capacity:argv.count+1)
+    let ptr = UnsafeMutablePointer<Unsafe>.allocate(capacity:argv.count+1)
     for (val,idx) in zip(argv,argc) {
     let idc:[Int] = Swift.Array(0..<val.count)
     ptr[idx] = UnsafeMutablePointer<Int8>.allocate(capacity:val.count+1)
@@ -85,13 +97,14 @@ func openFilter(_ argv: [String]) {
 
 struct ContentView: View {
     @Binding var viewId: Int
+    @ObservedObject var title: Title<String>
     @State private var scratch: String = "scatch"
     @State private var filter: String = "filter"
     @State private var input: String = "input"
     @State private var output: String = "output"
     @State private var error: String = "error"
     @State private var mode: String = "Manual"
-    @StateObject var queue = Queue(5)
+    @StateObject var queue = Queue(getVector(5))
     let dividers : CGFloat = 40
     let thickness : CGFloat = 10
     var body: some View {GeometryReader() {geo in
@@ -107,6 +120,9 @@ struct ContentView: View {
                 queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,3))})
             TextEditor(text: .constant(filter))
                 .frame(height: {queue.vector[3]*height}())
+                .onChange(of: filter) {val in
+                // TODO use portion of first word of val after last slash if any
+                title.set(viewId,val)}
             Color.yellow.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged() {val in
                 queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,2))})
