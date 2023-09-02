@@ -10,10 +10,9 @@
 
 #include <stdio.h>
 
-void open_filter(char **argv);
-void write_char(int val);
-int read_char(void);
-typedef void (*hgtype)(int);
-void add_call(hgtype call);
+void open_filter(int idx, char **argv);
+void write_char(int idx, int val);
+typedef void (*rqtype)(int idx, int fd, int chr);
+void read_call(rqtype val);
 
 #endif /* SystemCall_h */

@@ -50,6 +50,10 @@ class Queue<Type>: ObservableObject {
     }
 }
 
+func getTitle(_ value: String) -> String {
+    // TODO use portion of first word of value after last slash if any
+    return value
+}
 func getVector(_ count: Int) -> [CGFloat] {
     var vector: [CGFloat] = []
     let float: CGFloat = 1.0/CGFloat(count)
@@ -81,7 +85,9 @@ func ratioHeight(_ given: [CGFloat], _ height: CGFloat, _ delta: CGFloat, _ coun
     return vector
 }
 typealias Unsafe = Optional<UnsafeMutablePointer<Int8>>
-func openFilter(_ argv: [String]) {
+func openFilter(_ viewId: Int, _ filter: String) {
+    var argv: [String] = []
+    // TODO split into command and arguments
     let argc:[Int] = Swift.Array(0..<argv.count)
     let ptr = UnsafeMutablePointer<Unsafe>.allocate(capacity:argv.count+1)
     for (val,idx) in zip(argv,argc) {
@@ -90,7 +96,7 @@ func openFilter(_ argv: [String]) {
     for (v,i) in zip(val.utf8,idc) {ptr[idx]?[i] = Int8(v)}
     ptr[idx]?[val.count] = Int8(0)}
     ptr[argv.count] = nil
-    open_filter(ptr)
+    if (argv.count > 0) {open_filter(Int32(viewId),ptr)}
     for idx in argc {ptr[idx]!.deallocate()}
     ptr.deallocate()
 }
@@ -113,16 +119,13 @@ struct ContentView: View {
             TextEditor(text: $scratch)
                 .frame(height: {queue.vector[4]*height}())
                 .onChange(of: scratch) {val in
-                print("view: \(viewId) text: \(val)")
-                openFilter(["hello","ok","again"])}
+                print("view: \(viewId) text: \(val)")}
             Color.green.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged() {val in
                 queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,3))})
             TextEditor(text: .constant(filter))
                 .frame(height: {queue.vector[3]*height}())
-                .onChange(of: filter) {val in
-                // TODO use portion of first word of val after last slash if any
-                title.set(viewId,val)}
+                .onChange(of: filter) {val in openFilter(viewId,val); title.set(viewId,getTitle(val))}
             Color.yellow.frame(height: thickness)
                 .gesture(DragGesture(coordinateSpace:.local).onChanged() {val in
                 queue.push(ratioHeight(queue.vector,height,-val.translation.height,5,2))})
